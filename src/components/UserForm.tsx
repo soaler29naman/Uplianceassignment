@@ -1,39 +1,49 @@
 import { useState, useEffect } from 'react';
 import { TextField, Button, Box, Dialog, DialogTitle, DialogActions } from '@mui/material';
 
+interface FormData {
+  id: string;
+  name: string;
+  address: string;
+  email: string;
+  phone: string;
+}
+
 export default function UserForm() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     id: '',
     name: '',
     address: '',
     email: '',
     phone: ''
   });
-  const [hasChanges, setHasChanges] = useState(false);
-  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+
+  const [hasChanges, setHasChanges] = useState<boolean>(false);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState<boolean>(false);
 
   useEffect(() => {
-    const savedData = JSON.parse(localStorage.getItem('userData'));
+    const savedData = localStorage.getItem('userData');
     if (savedData) {
-      setFormData(savedData);
+      setFormData(JSON.parse(savedData));
     } else {
       setFormData(prev => ({ ...prev, id: crypto.randomUUID() }));
     }
   }, []);
 
   useEffect(() => {
-    const handleBeforeUnload = (e) => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (hasChanges) {
         e.preventDefault();
         e.returnValue = '';
         setConfirmDialogOpen(true);
       }
     };
+
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [hasChanges]);
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(d => ({ ...d, [e.target.name]: e.target.value }));
     setHasChanges(true);
   };
